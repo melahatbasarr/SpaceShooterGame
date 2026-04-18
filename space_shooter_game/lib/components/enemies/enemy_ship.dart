@@ -6,6 +6,7 @@ class EnemyShip extends RectangleComponent {
   final int maxHealth;
   final int scoreValue;
   final Color baseColor;
+  final bool useDamageColorEffect;
 
   int health;
 
@@ -14,6 +15,7 @@ class EnemyShip extends RectangleComponent {
     this.speed = 120,
     this.maxHealth = 1,
     this.scoreValue = 1,
+    this.useDamageColorEffect = true,
     Color color = const Color(0xFFFF6B6B),
   }) : baseColor = color,
        health = maxHealth,
@@ -31,7 +33,10 @@ class EnemyShip extends RectangleComponent {
       return true;
     }
 
-    _updateDamageColor();
+    if (useDamageColorEffect) {
+      _updateDamageColor();
+    }
+
     return false;
   }
 

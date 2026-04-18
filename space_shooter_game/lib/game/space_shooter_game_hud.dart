@@ -2,23 +2,9 @@ part of 'space_shooter_game.dart';
 
 extension SpaceShooterGameHud on SpaceShooterGame {
   void _createHudTexts() {
-    scoreText = TextComponent(
-      text: 'Score: 0',
-      position: Vector2(20, 70),
-      anchor: Anchor.topLeft,
-      textRenderer: TextPaint(
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-    add(scoreText);
-
     levelText = TextComponent(
       text: 'Level: 1',
-      position: Vector2(20, 100),
+      position: Vector2(20, 70),
       anchor: Anchor.topLeft,
       textRenderer: TextPaint(
         style: const TextStyle(
@@ -32,7 +18,7 @@ extension SpaceShooterGameHud on SpaceShooterGame {
 
     killText = TextComponent(
       text: 'Kills: 0 / 8',
-      position: Vector2(20, 130),
+      position: Vector2(20, 100),
       anchor: Anchor.topLeft,
       textRenderer: TextPaint(
         style: const TextStyle(
@@ -45,32 +31,18 @@ extension SpaceShooterGameHud on SpaceShooterGame {
     add(killText);
 
     livesText = TextComponent(
-      text: 'Lives: 3',
-      position: Vector2(20, 160),
+      text: '❤ ❤ ❤',
+      position: Vector2(20, 130),
       anchor: Anchor.topLeft,
       textRenderer: TextPaint(
         style: const TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
+          color: Colors.redAccent,
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
     add(livesText);
-
-    powerText = TextComponent(
-      text: 'Power: Normal',
-      position: Vector2(20, 190),
-      anchor: Anchor.topLeft,
-      textRenderer: TextPaint(
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-    add(powerText);
 
     transitionText = TextComponent(
       text: '',
@@ -88,7 +60,6 @@ extension SpaceShooterGameHud on SpaceShooterGame {
   }
 
   void _updateHud() {
-    scoreText.text = 'Score: $score';
     levelText.text = 'Level: $currentLevel';
 
     if (isBossLevel && currentBoss != null) {
@@ -98,23 +69,14 @@ extension SpaceShooterGameHud on SpaceShooterGame {
       killText.text = 'Kills: $levelKillCount / $levelTarget';
     }
 
-    livesText.text = 'Lives: $lives';
-    powerText.text = _getPowerText();
+    livesText.text = _buildLivesText();
   }
 
-  String _getPowerText() {
-    if (isRapidFireActive && player.isShieldActive) {
-      return 'Power: Rapid Fire + Shield';
+  String _buildLivesText() {
+    if (lives <= 0) {
+      return '';
     }
 
-    if (isRapidFireActive) {
-      return 'Power: Rapid Fire';
-    }
-
-    if (player.isShieldActive) {
-      return 'Power: Shield';
-    }
-
-    return 'Power: Normal';
+    return List.generate(lives, (_) => '❤').join(' ');
   }
 }

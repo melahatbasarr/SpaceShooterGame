@@ -10,40 +10,26 @@ extension SpaceShooterGameCollisions on SpaceShooterGame {
         if (_isOverlapping(bullet, enemy)) {
           bullet.removeFromParent();
 
-          if (enemy is TankEnemyShip) {
-            final bool isDestroyed = enemy.takeHit();
+          final bool isDestroyed = enemy.takeHit();
 
-            if (isDestroyed) {
-              add(
-                ExplosionEffect(
-                  position: enemy.position.clone(),
-                ),
-              );
-
-              enemy.removeFromParent();
-              score++;
-              levelKillCount++;
-
-              _updateHud();
-
-              if (levelKillCount >= levelTarget) {
-                _completeLevel();
-              }
-            }
-          } else {
+          if (isDestroyed) {
             add(
               ExplosionEffect(
                 position: enemy.position.clone(),
               ),
             );
 
+            final bool isBoss = enemy is BossShip;
+
             enemy.removeFromParent();
-            score++;
+            score += enemy.scoreValue;
             levelKillCount++;
 
             _updateHud();
 
-            if (levelKillCount >= levelTarget) {
+            if (isBoss) {
+              _completeLevel();
+            } else if (levelKillCount >= levelTarget) {
               _completeLevel();
             }
           }

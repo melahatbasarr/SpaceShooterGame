@@ -26,6 +26,11 @@ extension SpaceShooterGameSpawning on SpaceShooterGame {
   }
 
   void _spawnEnemy() {
+    if (currentLevel == 5) {
+      _spawnBoss();
+      return;
+    }
+
     final double spawnRoll = random.nextDouble();
 
     if (currentLevel >= 3 && spawnRoll < 0.20) {

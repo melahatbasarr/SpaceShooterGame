@@ -1,4 +1,5 @@
 import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
 import '../game/space_shooter_game.dart';
@@ -7,10 +8,7 @@ import '../services/progress_service.dart';
 class GamePage extends StatefulWidget {
   final int level;
 
-  const GamePage({
-    super.key,
-    required this.level,
-  });
+  const GamePage({super.key, required this.level});
 
   @override
   State<GamePage> createState() => _GamePageState();
@@ -21,6 +19,7 @@ class _GamePageState extends State<GamePage> {
 
   bool showGameOverMenu = false;
   bool showLevelCompleteMenu = false;
+  bool isSavingLevelResult = false;
 
   @override
   void initState() {
@@ -30,6 +29,7 @@ class _GamePageState extends State<GamePage> {
       startingLevel: widget.level,
       onGameOver: () {
         if (!mounted) return;
+        if (showLevelCompleteMenu) return;
 
         setState(() {
           showGameOverMenu = true;
@@ -38,10 +38,27 @@ class _GamePageState extends State<GamePage> {
       },
       onLevelComplete: _handleLevelComplete,
     );
+
+    _startLevelMusicIfNeeded();
+  }
+
+  Future<void> _startLevelMusicIfNeeded() async {
+    if (widget.level != 5) return;
+
+    await FlameAudio.bgm.initialize();
+
+    await FlameAudio.bgm.play('ses.mp3', volume: 1.0);
   }
 
   Future<void> _handleLevelComplete() async {
+    if (!mounted) return;
+    if (isSavingLevelResult) return;
+    if (showGameOverMenu) return;
     if (showLevelCompleteMenu) return;
+    if (game.isGameOver) return;
+    if (!game.isLevelCompleted) return;
+
+    isSavingLevelResult = true;
 
     final int earnedStars = game.getEarnedStars();
 
@@ -57,12 +74,15 @@ class _GamePageState extends State<GamePage> {
       showLevelCompleteMenu = true;
       showGameOverMenu = false;
     });
+
+    isSavingLevelResult = false;
   }
 
   void _restartLevel() {
     setState(() {
       showGameOverMenu = false;
       showLevelCompleteMenu = false;
+      isSavingLevelResult = false;
     });
 
     game.restartGame();
@@ -74,9 +94,7 @@ class _GamePageState extends State<GamePage> {
 
   void _goToNextLevel() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => GamePage(level: widget.level + 1),
-      ),
+      MaterialPageRoute(builder: (_) => GamePage(level: widget.level + 1)),
     );
   }
 
@@ -114,9 +132,7 @@ class _GamePageState extends State<GamePage> {
           decoration: BoxDecoration(
             color: const Color(0xFF1E1E2E),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.white24,
-            ),
+            border: Border.all(color: Colors.white24),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -132,18 +148,12 @@ class _GamePageState extends State<GamePage> {
               const SizedBox(height: 12),
               Text(
                 'Level ${widget.level}',
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 18,
-                ),
+                style: const TextStyle(color: Colors.white70, fontSize: 18),
               ),
               const SizedBox(height: 12),
               Text(
                 'Score: ${game.score}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -180,9 +190,7 @@ class _GamePageState extends State<GamePage> {
           decoration: BoxDecoration(
             color: const Color(0xFF1E1E2E),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.white24,
-            ),
+            border: Border.all(color: Colors.white24),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -198,28 +206,19 @@ class _GamePageState extends State<GamePage> {
               const SizedBox(height: 12),
               Text(
                 'Level ${widget.level} cleared',
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 18,
-                ),
+                style: const TextStyle(color: Colors.white70, fontSize: 18),
               ),
               const SizedBox(height: 16),
               _buildStars(earnedStars),
               const SizedBox(height: 16),
               Text(
                 'Score: ${game.score}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
               const SizedBox(height: 8),
               Text(
                 'Missed Enemies: ${game.missedEnemiesCount}',
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
-                ),
+                style: const TextStyle(color: Colors.white70, fontSize: 16),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -245,6 +244,12 @@ class _GamePageState extends State<GamePage> {
   }
 
   @override
+  void dispose() {
+    FlameAudio.bgm.stop();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -258,9 +263,7 @@ class _GamePageState extends State<GamePage> {
               onPanUpdate: (details) {
                 _handlePlayerMove(details.localPosition.dx);
               },
-              child: GameWidget(
-                game: game,
-              ),
+              child: GameWidget(game: game),
             ),
           ),
           Positioned(

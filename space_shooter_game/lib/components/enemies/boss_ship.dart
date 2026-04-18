@@ -10,6 +10,9 @@ class BossShip extends EnemyShip {
 
   int direction = 1;
 
+  late SpriteComponent bossVisual;
+  bool isSecondPhaseVisualActive = false;
+
   BossShip({
     required Vector2 position,
     required this.minX,
@@ -22,9 +25,43 @@ class BossShip extends EnemyShip {
           speed: speed,
           maxHealth: 20,
           scoreValue: 20,
-          color: const Color(0xFFEF5350),
+          useDamageColorEffect: false,
+          color: const Color(0x00FFFFFF),
         ) {
-    size = Vector2(150, 60);
+    size = Vector2(170, 170);
+    paint.color = Colors.transparent;
+  }
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+
+    final normalSprite = await Sprite.load('boss.png');
+
+    bossVisual = SpriteComponent(
+      sprite: normalSprite,
+      size: size,
+      anchor: Anchor.center,
+      position: size / 2,
+    );
+
+    add(bossVisual);
+  }
+
+  @override
+  bool takeHit() {
+    final bool isDestroyed = super.takeHit();
+
+    if (!isDestroyed && health <= 5 && !isSecondPhaseVisualActive) {
+      _switchToSecondPhaseVisual();
+    }
+
+    return isDestroyed;
+  }
+
+  Future<void> _switchToSecondPhaseVisual() async {
+    isSecondPhaseVisualActive = true;
+    bossVisual.sprite = await Sprite.load('bosstwo.png');
   }
 
   @override
