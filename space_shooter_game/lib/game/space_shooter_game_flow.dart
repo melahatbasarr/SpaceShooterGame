@@ -15,6 +15,8 @@ extension SpaceShooterGameFlow on SpaceShooterGame {
   void _takeDamage() {
     if (isGameOver || isLevelTransition) return;
 
+    _resetCombo();
+
     lives--;
     _updateHud();
 
@@ -28,6 +30,8 @@ extension SpaceShooterGameFlow on SpaceShooterGame {
 
   void _triggerGameOver() {
     if (isGameOver) return;
+
+    _resetCombo();
 
     isGameOver = true;
     isLevelCompleted = false;
@@ -57,6 +61,8 @@ extension SpaceShooterGameFlow on SpaceShooterGame {
 
   void _completeLevel() {
     if (isGameOver || isLevelTransition) return;
+
+    _resetCombo();
 
     isLevelTransition = true;
     isLevelCompleted = true;
@@ -90,38 +96,15 @@ extension SpaceShooterGameFlow on SpaceShooterGame {
     onLevelComplete();
   }
 
-  void _startNextLevel() {
-    currentLevel++;
-    levelKillCount = 0;
-    levelTarget = 8 + ((currentLevel - 1) * 4);
-
-    missedEnemiesCount = 0;
-    isLevelCompleted = false;
-
-    enemySpawnTimer = 0;
-    enemySpawnInterval = (1.2 - ((currentLevel - 1) * 0.1)).clamp(0.5, 10.0);
-
-    enemyBulletSpawnTimer = 0;
-    enemyBulletSpawnInterval =
-        (1.6 - ((currentLevel - 1) * 0.08)).clamp(0.7, 10.0);
-
-    powerUpSpawnTimer = 0;
-
-    currentBoss = null;
-    isBossSpawnedForLevel = false;
-
-    isLevelTransition = false;
-    levelTransitionTimer = 0;
-    transitionText.text = '';
-
-    _updateHud();
-  }
-
   void restartGame() {
+    _resetCombo();
+
     score = 0;
     currentLevel = startingLevel;
     levelKillCount = 0;
     levelTarget = 8 + ((currentLevel - 1) * 4);
+
+    _applySelectedShipStats();
     lives = maxLives;
 
     missedEnemiesCount = 0;
@@ -133,8 +116,10 @@ extension SpaceShooterGameFlow on SpaceShooterGame {
     enemySpawnInterval = (1.2 - ((currentLevel - 1) * 0.1)).clamp(0.5, 10.0);
 
     enemyBulletSpawnTimer = 0;
-    enemyBulletSpawnInterval =
-        (1.6 - ((currentLevel - 1) * 0.08)).clamp(0.7, 10.0);
+    enemyBulletSpawnInterval = (1.6 - ((currentLevel - 1) * 0.08)).clamp(
+      0.7,
+      10.0,
+    );
 
     powerUpSpawnTimer = 0;
 
@@ -172,7 +157,8 @@ extension SpaceShooterGameFlow on SpaceShooterGame {
       item.removeFromParent();
     }
 
-    player.position = Vector2(size.x / 2, size.y - 70);
+    player.snapToX(size.x / 2, size.x);
+    player.position.y = size.y - 70;
 
     _updateHud();
   }

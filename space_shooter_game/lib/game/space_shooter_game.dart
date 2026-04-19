@@ -2,6 +2,9 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:space_shooter_game/models/mission.dart';
+import 'package:space_shooter_game/services/mission_service.dart';
+
 import '../components/effects/explosion_effect.dart';
 import '../components/enemies/boss_ship.dart';
 import '../components/enemies/enemy_bullet.dart';
@@ -11,6 +14,7 @@ import '../components/enemies/zigzag_enemy_ship.dart';
 import '../components/player/player_bullet.dart';
 import '../components/player/player_ship.dart';
 import '../components/powerups/power_up_item.dart';
+import '../services/progress_service.dart';
 
 part 'space_shooter_game_hud.dart';
 part 'space_shooter_game_spawning.dart';
@@ -20,11 +24,13 @@ part 'space_shooter_game_flow.dart';
 class SpaceShooterGame extends FlameGame {
   final VoidCallback onGameOver;
   final VoidCallback onLevelComplete;
+  final void Function(List<Mission>)? onMissionsCompleted;
   final int startingLevel;
 
   SpaceShooterGame({
     required this.onGameOver,
     required this.onLevelComplete,
+    this.onMissionsCompleted,
     this.startingLevel = 1,
   });
 
@@ -46,7 +52,7 @@ class SpaceShooterGame extends FlameGame {
   int levelTarget = 8;
 
   int lives = 3;
-  final int maxLives = 3;
+  int maxLives = 3;
 
   int missedEnemiesCount = 0;
   bool isLevelCompleted = false;
@@ -85,6 +91,45 @@ class SpaceShooterGame extends FlameGame {
 
   double powerUpSpawnTimer = 0;
   double powerUpSpawnInterval = 12.0;
+
+  int comboCount = 0;
+  int bestCombo = 0;
+  double comboTimer = 0;
+  double comboResetDuration = 2.2;
+
+  bool get hasActiveCombo => comboCount > 1;
+
+  void _applySelectedShipStats() {
+    normalFireInterval = player.fireCooldown;
+    rapidFireInterval = (player.fireCooldown * 0.55).clamp(0.10, 0.20);
+  }
+
+  void _registerComboKill() {
+    comboCount++;
+    comboTimer = 0;
+
+    if (comboCount > bestCombo) {
+      bestCombo = comboCount;
+    }
+
+    _updateHud();
+  }
+
+  void _resetCombo() {
+    if (comboCount == 0) return;
+
+    comboCount = 0;
+    comboTimer = 0;
+    _updateHud();
+  }
+
+  int getComboBonusScore() {
+    if (comboCount <= 1) {
+      return 0;
+    }
+
+    return comboCount - 1;
+  }
 
   int getEarnedStars() {
     if (!isLevelCompleted) {
@@ -147,12 +192,17 @@ class SpaceShooterGame extends FlameGame {
 
     _createHudTexts();
 
+    final selectedShipStats = ProgressService.instance.getSelectedShipStats();
+
     player = PlayerShip(
       position: Vector2(size.x / 2, size.y - 70),
+      shipStats: selectedShipStats,
     );
 
     add(player);
 
+    _applySelectedShipStats();
+    lives = maxLives;
     _updateHud();
   }
 
@@ -184,6 +234,14 @@ class SpaceShooterGame extends FlameGame {
     if (player.isShieldActive != previousShieldState) {
       previousShieldState = player.isShieldActive;
       _updateHud();
+    }
+
+    if (comboCount > 0) {
+      comboTimer += dt;
+
+      if (comboTimer >= comboResetDuration) {
+        _resetCombo();
+      }
     }
 
     if (isLevelTransition) {

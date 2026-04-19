@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+
 import 'enemy_ship.dart';
 
 class BossShip extends EnemyShip {
@@ -21,13 +22,13 @@ class BossShip extends EnemyShip {
     this.horizontalSpeed = 120,
     double speed = 80,
   }) : super(
-          position: position,
-          speed: speed,
-          maxHealth: 20,
-          scoreValue: 20,
-          useDamageColorEffect: false,
-          color: const Color(0x00FFFFFF),
-        ) {
+         position: position,
+         speed: speed,
+         maxHealth: 20,
+         scoreValue: 20,
+         useDamageColorEffect: false,
+         color: const Color(0x00FFFFFF),
+       ) {
     size = Vector2(170, 170);
     paint.color = Colors.transparent;
   }
@@ -49,8 +50,8 @@ class BossShip extends EnemyShip {
   }
 
   @override
-  bool takeHit() {
-    final bool isDestroyed = super.takeHit();
+  bool takeHit({int damage = 1}) {
+    final bool isDestroyed = super.takeHit(damage: damage);
 
     if (!isDestroyed && health <= 5 && !isSecondPhaseVisualActive) {
       _switchToSecondPhaseVisual();

@@ -106,10 +106,16 @@ extension SpaceShooterGameSpawning on SpaceShooterGame {
     final double randomX =
         halfWidth + random.nextDouble() * (size.x - itemWidth);
 
-    final PowerUpType randomType =
-        random.nextDouble() < 0.7
-            ? PowerUpType.rapidFire
-            : PowerUpType.shield;
+    final double roll = random.nextDouble();
+
+    final PowerUpType randomType;
+    if (roll < 0.50) {
+      randomType = PowerUpType.rapidFire;
+    } else if (roll < 0.80) {
+      randomType = PowerUpType.shield;
+    } else {
+      randomType = PowerUpType.heal;
+    }
 
     add(
       PowerUpItem(

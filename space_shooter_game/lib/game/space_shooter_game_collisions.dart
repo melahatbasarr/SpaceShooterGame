@@ -10,7 +10,9 @@ extension SpaceShooterGameCollisions on SpaceShooterGame {
         if (_isOverlapping(bullet, enemy)) {
           bullet.removeFromParent();
 
-          final bool isDestroyed = enemy.takeHit();
+          final bool isDestroyed = enemy.takeHit(
+            damage: player.bulletDamage,
+          );
 
           if (isDestroyed) {
             add(
@@ -22,8 +24,23 @@ extension SpaceShooterGameCollisions on SpaceShooterGame {
             final bool isBoss = enemy is BossShip;
 
             enemy.removeFromParent();
-            score += enemy.scoreValue;
             levelKillCount++;
+
+            _registerComboKill();
+            final int comboBonus = getComboBonusScore();
+            score += enemy.scoreValue + comboBonus;
+
+            MissionService.instance.addProgress(
+              type: MissionType.killEnemies,
+              amount: 1,
+            );
+
+            if (isBoss) {
+              MissionService.instance.addProgress(
+                type: MissionType.killBosses,
+                amount: 1,
+              );
+            }
 
             _updateHud();
 
@@ -96,12 +113,21 @@ extension SpaceShooterGameCollisions on SpaceShooterGame {
       if (_isOverlapping(item, player)) {
         item.removeFromParent();
 
+        MissionService.instance.addProgress(
+          type: MissionType.collectPowerUps,
+          amount: 1,
+        );
+
         switch (item.type) {
           case PowerUpType.rapidFire:
             _activateRapidFire();
             break;
           case PowerUpType.shield:
             player.activateShield();
+            _updateHud();
+            break;
+          case PowerUpType.heal:
+            lives = min(lives + 1, maxLives);
             _updateHud();
             break;
         }

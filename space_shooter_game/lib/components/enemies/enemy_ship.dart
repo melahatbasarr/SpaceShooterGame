@@ -26,8 +26,16 @@ class EnemyShip extends RectangleComponent {
          paint: Paint()..color = color,
        );
 
-  bool takeHit() {
-    health--;
+  bool takeHit({int damage = 1}) {
+    if (damage <= 0) {
+      return false;
+    }
+
+    health -= damage;
+
+    if (health < 0) {
+      health = 0;
+    }
 
     if (health <= 0) {
       return true;

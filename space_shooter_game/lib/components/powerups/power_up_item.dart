@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 enum PowerUpType {
   rapidFire,
   shield,
+  heal,
 }
 
 class PowerUpItem extends RectangleComponent {
@@ -27,6 +28,8 @@ class PowerUpItem extends RectangleComponent {
         return const Color(0xFFFFD54F);
       case PowerUpType.shield:
         return const Color(0xFF64B5F6);
+      case PowerUpType.heal:
+        return const Color(0xFF81C784);
     }
   }
 
