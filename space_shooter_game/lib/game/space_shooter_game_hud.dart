@@ -72,6 +72,20 @@ extension SpaceShooterGameHud on SpaceShooterGame {
     );
     add(powerText);
 
+    dropInfoText = TextComponent(
+      text: '',
+      position: Vector2(20, 192),
+      anchor: Anchor.topLeft,
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Colors.white70,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+    add(dropInfoText);
+
     transitionText = TextComponent(
       text: '',
       position: Vector2(size.x / 2, size.y / 2),
@@ -100,6 +114,7 @@ extension SpaceShooterGameHud on SpaceShooterGame {
 
     livesText.text = _buildLivesText();
     powerText.text = _buildStatusText();
+    dropInfoText.text = _buildDropInfoText();
   }
 
   String _buildLivesText() {
@@ -126,5 +141,9 @@ extension SpaceShooterGameHud on SpaceShooterGame {
     }
 
     return parts.join('   •   ');
+  }
+
+  String _buildDropInfoText() {
+    return 'Drops: Rapid Fire • Shield • Heal';
   }
 }

@@ -2,11 +2,81 @@ part of 'space_shooter_game.dart';
 
 extension SpaceShooterGameSpawning on SpaceShooterGame {
   void _fireBullet() {
-    add(
-      PlayerBullet(
-        position: player.getBulletSpawnPosition(),
-      ),
-    );
+    final spawnPosition = player.getBulletSpawnPosition();
+    final weaponType = player.shipStats.weaponType;
+
+    switch (weaponType) {
+      case PlayerWeaponType.single:
+        add(
+          PlayerBullet(
+            position: spawnPosition.clone(),
+          ),
+        );
+        break;
+
+      case PlayerWeaponType.doubleShot:
+        add(
+          PlayerBullet(
+            position: Vector2(spawnPosition.x - 14, spawnPosition.y),
+            bulletColor: const Color(0xFFFFF176),
+          ),
+        );
+
+        add(
+          PlayerBullet(
+            position: Vector2(spawnPosition.x + 14, spawnPosition.y),
+            bulletColor: const Color(0xFFFFF176),
+          ),
+        );
+        break;
+
+      case PlayerWeaponType.heavy:
+        add(
+          PlayerBullet(
+            position: spawnPosition.clone(),
+            speed: 360,
+            bulletSize: Vector2(10, 26),
+            bulletColor: const Color(0xFFFFB74D),
+          ),
+        );
+        break;
+
+      case PlayerWeaponType.spread:
+        add(
+          PlayerBullet(
+            position: spawnPosition.clone(),
+            bulletColor: const Color(0xFF81D4FA),
+          ),
+        );
+
+        add(
+          PlayerBullet(
+            position: Vector2(spawnPosition.x - 10, spawnPosition.y),
+            horizontalSpeed: -140,
+            bulletColor: const Color(0xFF81D4FA),
+          ),
+        );
+
+        add(
+          PlayerBullet(
+            position: Vector2(spawnPosition.x + 10, spawnPosition.y),
+            horizontalSpeed: 140,
+            bulletColor: const Color(0xFF81D4FA),
+          ),
+        );
+        break;
+
+      case PlayerWeaponType.power:
+        add(
+          PlayerBullet(
+            position: spawnPosition.clone(),
+            speed: 430,
+            bulletSize: Vector2(8, 24),
+            bulletColor: const Color(0xFFCE93D8),
+          ),
+        );
+        break;
+    }
   }
 
   void _spawnBoss() {
@@ -100,7 +170,7 @@ extension SpaceShooterGameSpawning on SpaceShooterGame {
   }
 
   void _spawnPowerUp() {
-    const double itemWidth = 24;
+    const double itemWidth = 28;
     final double halfWidth = itemWidth / 2;
 
     final double randomX =
@@ -109,12 +179,14 @@ extension SpaceShooterGameSpawning on SpaceShooterGame {
     final double roll = random.nextDouble();
 
     final PowerUpType randomType;
-    if (roll < 0.50) {
+    if (roll < 0.35) {
       randomType = PowerUpType.rapidFire;
-    } else if (roll < 0.80) {
+    } else if (roll < 0.60) {
       randomType = PowerUpType.shield;
-    } else {
+    } else if (roll < 0.80) {
       randomType = PowerUpType.heal;
+    } else {
+      randomType = PowerUpType.coin;
     }
 
     add(

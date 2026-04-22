@@ -3,15 +3,20 @@ import 'package:flutter/material.dart';
 
 class PlayerBullet extends RectangleComponent {
   final double speed;
+  final double horizontalSpeed;
 
   PlayerBullet({
     required Vector2 position,
     this.speed = 400,
+    this.horizontalSpeed = 0,
+    Vector2? bulletSize,
+    Color? bulletColor,
   }) : super(
           position: position,
-          size: Vector2(6, 18),
+          size: bulletSize ?? Vector2(6, 18),
           anchor: Anchor.center,
-          paint: Paint()..color = const Color(0xFFFFFF66),
+          paint: Paint()
+            ..color = bulletColor ?? const Color(0xFFFFFF66),
         );
 
   @override
@@ -19,8 +24,13 @@ class PlayerBullet extends RectangleComponent {
     super.update(dt);
 
     position.y -= speed * dt;
+    position.x += horizontalSpeed * dt;
 
-    if (position.y + (size.y / 2) < 0) {
+    final bool isOutOfTop = position.y + (size.y / 2) < 0;
+    final bool isOutOfLeft = position.x + (size.x / 2) < 0;
+    final bool isOutOfRight = position.x - (size.x / 2) > 2000;
+
+    if (isOutOfTop || isOutOfLeft || isOutOfRight) {
       removeFromParent();
     }
   }

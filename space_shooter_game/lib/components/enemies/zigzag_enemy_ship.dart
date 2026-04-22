@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+
 import 'enemy_ship.dart';
 
 class ZigzagEnemyShip extends EnemyShip {
@@ -16,12 +17,13 @@ class ZigzagEnemyShip extends EnemyShip {
     double speed = 120,
     this.horizontalSpeed = 90,
   }) : super(
-          position: position,
-          speed: speed,
-          maxHealth: 1,
-          scoreValue: 2,
-          color: const Color(0xFFFFA726),
-        );
+         position: position,
+         speed: speed,
+         maxHealth: 1,
+         scoreValue: 2,
+         color: const Color(0xFFFFA726),
+         assetName: 'enemies_two.png',
+       );
 
   @override
   void update(double dt) {

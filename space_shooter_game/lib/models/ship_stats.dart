@@ -1,3 +1,5 @@
+import 'player_weapon_type.dart';
+
 class ShipStats {
   final String id;
   final String name;
@@ -9,6 +11,8 @@ class ShipStats {
   final double fireCooldown;
   final int bulletDamage;
   final bool isStarterShip;
+  final String assetName;
+  final PlayerWeaponType weaponType;
 
   const ShipStats({
     required this.id,
@@ -20,8 +24,12 @@ class ShipStats {
     required this.moveSpeed,
     required this.fireCooldown,
     required this.bulletDamage,
+    required this.assetName,
+    required this.weaponType,
     this.isStarterShip = false,
   });
+
+  String get assetPath => 'assets/images/$assetName';
 
   bool canBePurchased({
     required int highestUnlockedLevel,
@@ -41,6 +49,8 @@ class ShipCatalog {
     moveSpeed: 300,
     fireCooldown: 0.25,
     bulletDamage: 1,
+    assetName: 'ship_one.png',
+    weaponType: PlayerWeaponType.single,
     isStarterShip: true,
   );
 
@@ -48,48 +58,56 @@ class ShipCatalog {
     id: 'rapid',
     name: 'Wisp',
     description: 'Very fast and agile ship with rapid fire but lower durability.',
-    price: 150,
-    requiredLevel: 3,
+    price: 300,
+    requiredLevel: 4,
     maxHealth: 4,
     moveSpeed: 350,
     fireCooldown: 0.17,
     bulletDamage: 1,
+    assetName: 'ship_two.png',
+    weaponType: PlayerWeaponType.doubleShot,
   );
 
   static const ShipStats tank = ShipStats(
     id: 'tank',
     name: 'Bulwark',
     description: 'Heavy armored ship with stronger shots but slower movement.',
-    price: 320,
-    requiredLevel: 6,
+    price: 700,
+    requiredLevel: 8,
     maxHealth: 8,
     moveSpeed: 245,
     fireCooldown: 0.33,
     bulletDamage: 2,
+    assetName: 'ship_three.png',
+    weaponType: PlayerWeaponType.heavy,
   );
 
   static const ShipStats reaper = ShipStats(
     id: 'reaper',
     name: 'Reaper',
     description: 'Slow-firing assault ship that deals massive damage per shot.',
-    price: 500,
-    requiredLevel: 9,
+    price: 1500,
+    requiredLevel: 13,
     maxHealth: 4,
     moveSpeed: 285,
     fireCooldown: 0.42,
     bulletDamage: 3,
+    assetName: 'ship_four.png',
+    weaponType: PlayerWeaponType.power,
   );
 
   static const ShipStats tempest = ShipStats(
     id: 'tempest',
     name: 'Tempest',
     description: 'Advanced combat ship with strong sustained fire and high speed.',
-    price: 700,
-    requiredLevel: 12,
+    price: 3000,
+    requiredLevel: 18,
     maxHealth: 5,
     moveSpeed: 330,
     fireCooldown: 0.21,
     bulletDamage: 2,
+    assetName: 'ship_five.png',
+    weaponType: PlayerWeaponType.spread,
   );
 
   static const List<ShipStats> all = [

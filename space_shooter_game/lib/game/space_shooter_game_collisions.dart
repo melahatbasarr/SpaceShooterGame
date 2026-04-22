@@ -122,12 +122,19 @@ extension SpaceShooterGameCollisions on SpaceShooterGame {
           case PowerUpType.rapidFire:
             _activateRapidFire();
             break;
+
           case PowerUpType.shield:
             player.activateShield();
             _updateHud();
             break;
+
           case PowerUpType.heal:
             lives = min(lives + 1, maxLives);
+            _updateHud();
+            break;
+
+          case PowerUpType.coin:
+            ProgressService.instance.addCoins(1);
             _updateHud();
             break;
         }

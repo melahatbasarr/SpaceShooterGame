@@ -12,6 +12,8 @@ class ProgressService {
 
   static final ProgressService instance = ProgressService._();
 
+  static const int maxLevel = 20;
+
   Box<dynamic> get _box => Hive.box(StorageKeys.playerProgressBox);
 
   Future<void> init() async {
@@ -31,7 +33,11 @@ class ProgressService {
     final rawData = _box.get(StorageKeys.playerProgressKey);
 
     if (rawData is Map<dynamic, dynamic>) {
-      return PlayerProgress.fromMap(rawData);
+      final progress = PlayerProgress.fromMap(rawData);
+
+      return progress.copyWith(
+        highestUnlockedLevel: progress.highestUnlockedLevel.clamp(1, maxLevel),
+      );
     }
 
     return const PlayerProgress();
@@ -40,11 +46,17 @@ class ProgressService {
   Future<void> saveProgress(PlayerProgress progress) async {
     await _box.put(
       StorageKeys.playerProgressKey,
-      progress.toMap(),
+      progress.copyWith(
+        highestUnlockedLevel: progress.highestUnlockedLevel.clamp(1, maxLevel),
+      ).toMap(),
     );
   }
 
   bool isLevelUnlocked(int level) {
+    if (level < 1 || level > maxLevel) {
+      return false;
+    }
+
     final progress = loadProgress();
     return progress.isLevelUnlocked(level);
   }
@@ -61,7 +73,7 @@ class ProgressService {
 
   int getHighestUnlockedLevel() {
     final progress = loadProgress();
-    return progress.highestUnlockedLevel;
+    return progress.highestUnlockedLevel.clamp(1, maxLevel);
   }
 
   int getCoins() {
@@ -87,6 +99,14 @@ class ProgressService {
   bool isShipOwned(String shipId) {
     final progress = loadProgress();
     return progress.isShipOwned(shipId);
+  }
+
+  bool hasNextLevel(int currentLevel) {
+    return currentLevel < maxLevel;
+  }
+
+  int getNextLevel(int currentLevel) {
+    return min(currentLevel + 1, maxLevel);
   }
 
   Future<void> addCoins(int amount) async {
@@ -161,11 +181,12 @@ class ProgressService {
     required int score,
   }) async {
     final progress = loadProgress();
+    final safeLevel = level.clamp(1, maxLevel);
 
-    final currentLevelProgress = progress.getLevelProgress(level);
+    final currentLevelProgress = progress.getLevelProgress(safeLevel);
 
     final updatedLevelProgress = currentLevelProgress.copyWith(
-      levelNumber: level,
+      levelNumber: safeLevel,
       stars: max(currentLevelProgress.stars, stars),
       bestScore: max(currentLevelProgress.bestScore, score),
       isCompleted: true,
@@ -173,11 +194,11 @@ class ProgressService {
 
     final updatedLevelsProgress =
         Map<int, LevelProgress>.from(progress.levelsProgress);
-    updatedLevelsProgress[level] = updatedLevelProgress;
+    updatedLevelsProgress[safeLevel] = updatedLevelProgress;
 
-    final updatedHighestUnlockedLevel = max(
-      progress.highestUnlockedLevel,
-      level + 1,
+    final updatedHighestUnlockedLevel = min(
+      max(progress.highestUnlockedLevel, safeLevel + 1),
+      maxLevel,
     );
 
     final updatedProgress = progress.copyWith(

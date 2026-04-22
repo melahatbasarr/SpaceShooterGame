@@ -3,6 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:space_shooter_game/models/mission.dart';
+import 'package:space_shooter_game/models/player_weapon_type.dart';
 import 'package:space_shooter_game/services/mission_service.dart';
 
 import '../components/effects/explosion_effect.dart';
@@ -42,6 +43,7 @@ class SpaceShooterGame extends FlameGame {
   late TextComponent livesText;
   late TextComponent powerText;
   late TextComponent transitionText;
+  late TextComponent dropInfoText;
 
   final Random random = Random();
 
